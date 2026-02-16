@@ -24,7 +24,8 @@ from app.router import select_os_level, get_os_key
 from app.ui.layout import header, invariant_panel, sidebar_controls
 
 # Import des vues
-from app.views import os0_invariants, os1_observation, os2_simulation, os3_governance, os4_reports
+from app.views import os0_invariants, os1_observation, os2_simulation, os3_governance
+from app.views import os4_reports_extended as os4_reports
 
 # Session state initialization
 if "run_id" not in st.session_state:

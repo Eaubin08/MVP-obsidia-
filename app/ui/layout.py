@@ -21,13 +21,33 @@ def invariant_panel():
 
 def sidebar_controls():
     """Affiche les contrôles globaux dans la sidebar."""
-    st.sidebar.title("🎛️ Console")
+    st.sidebar.title("🏛️ Console")
     
-    from app.config import MODES, DOMAINS, DEFAULT_SEED, DEFAULT_TAU
+    from app.config import MODES, DOMAINS, DEFAULT_SEED, DEFAULT_TAU, BASE_DIR
+    from src.scenarios import load_scenarios
     
     mode = st.sidebar.selectbox("Mode", MODES, index=0)
     domain = st.sidebar.selectbox("Domain", DOMAINS, index=0)
     
+    # Scenario picker (Proof Mode only)
+    selected_scenario = None
+    if mode.startswith("Proof"):
+        st.sidebar.markdown("---")
+        st.sidebar.markdown("**🎯 Proof Scenarios**")
+        
+        scenarios = load_scenarios(BASE_DIR, "trading")
+        if scenarios:
+            scenario_names = ["(None)"] + [f"{s['id']}: {s['name']}" for s in scenarios]
+            scenario_choice = st.sidebar.selectbox("Select Scenario", scenario_names, index=0)
+            
+            if scenario_choice != "(None)":
+                scenario_id = scenario_choice.split(":")[0]
+                selected_scenario = next((s for s in scenarios if s["id"] == scenario_id), None)
+                
+                if selected_scenario:
+                    st.sidebar.info(f"✅ {selected_scenario['description']}")
+    
+    st.sidebar.markdown("---")
     col1, col2 = st.sidebar.columns(2)
     with col1:
         seed = st.number_input("Seed", min_value=0, value=DEFAULT_SEED, step=1)
@@ -39,5 +59,6 @@ def sidebar_controls():
         "domain": domain,
         "seed": int(seed),
         "tau": float(tau),
-        "nondeterministic": mode.startswith("Free")
+        "nondeterministic": mode.startswith("Free"),
+        "selected_scenario": selected_scenario
     }
