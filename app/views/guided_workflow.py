@@ -136,14 +136,14 @@ def render_step2_exploration(base_dir: Path, config: dict):
     st.markdown("## 🔍 Étape 2 : Exploration des Données")
     
     st.markdown("""
-    ### Découvrez les données du marché
+    **Objectif** : Extraire les features (caractéristiques) des données de marché pour alimenter la simulation.
     
-    Dans cette étape, vous allez :
-    1. **Visualiser** les données de marché (prix, volatilité)
-    2. **Calculer les features** nécessaires pour la simulation
-    3. **Comprendre** les métriques clés (cohérence, stabilité, friction)
+    **Processus** :
+    1. Visualisation des données (prix, volatilité)
+    2. Calcul des métriques (cohérence, stabilité, friction)
+    3. Export vers features.json
     
-    ⚠️ **Important** : Aucune action réelle n'est exécutée ici. C'est une phase d'**exploration sans risque**.
+    **Rôle** : Explorer (séparation des rôles). Aucune action irréversible possible.
     """)
     
     st.markdown("---")
@@ -177,14 +177,16 @@ def render_step3_simulation(base_dir: Path, config: dict):
     st.markdown("## 🎲 Étape 3 : Simulation Monte Carlo")
     
     st.markdown("""
-    ### Projetez les risques futurs
+    **Objectif** : Projeter les scénarios futurs possibles via simulation Monte Carlo.
     
-    Dans cette étape, vous allez :
-    1. **Exécuter** une simulation Monte Carlo (1000 scénarios)
-    2. **Analyser** la distribution des retours possibles
-    3. **Évaluer** le risque (CVaR 95%)
+    **Méthode** : Génération de N scénarios stochastiques sur horizon H.
     
-    💡 **Rappel** : Cette simulation utilise les features calculées à l'étape précédente.
+    **Métriques clés** :
+    - μ (expected return), σ (volatility)
+    - CVaR 95% (Conditional Value at Risk)
+    - P(DD > threshold), P(Ruin)
+    
+    **Sortie** : simulation.json avec verdict (OK/UNCERTAIN/DESTRUCTIVE).
     """)
     
     st.markdown("---")
@@ -217,14 +219,16 @@ def render_step4_governance(base_dir: Path, config: dict):
     st.markdown("## ⚖️ Étape 4 : Gouvernance et Décision")
     
     st.markdown("""
-    ### Évaluez les gates et émettez un intent
+    **Objectif** : Évaluer les gates de validation et appliquer la politique ROI.
     
-    Dans cette étape, vous allez :
-    1. **Vérifier** les 3 gates de validation (Integrity, X-108, Risk)
-    2. **Appliquer** la politique ROI (Return on Intent)
-    3. **Émettre** un intent papier (ERC-8004)
+    **Gates** :
+    - G1 (Integrity) : Cohérence des données
+    - G2 (X-108) : Temporal Lock (τ seconds)
+    - G3 (Risk) : Killswitch sur CVaR
     
-    🔒 **Important** : C'est ici que les **lois fondamentales** (X-108, Gate Priority) s'appliquent.
+    **Composition** : max(BLOCK, HOLD, ALLOW) → Priorité BLOCK > HOLD > ALLOW
+    
+    **Sortie** : gates.json + erc8004_intent.json (paper intent)
     """)
     
     st.markdown("---")
@@ -252,15 +256,16 @@ def render_step5_report(base_dir: Path, config: dict):
     st.markdown("## 📊 Étape 5 : Rapport et Export")
     
     st.markdown("""
-    ### Exportez et analysez les résultats
+    **Objectif** : Consulter les artefacts et exporter les résultats pour audit.
     
-    Félicitations ! Vous avez complété le workflow guidé. 🎉
+    **Artefacts disponibles** :
+    - features.json, simulation.json, gates.json
+    - erc8004_intent.json (paper intent)
+    - os0_snapshot.json (configuration)
     
-    Dans cette dernière étape, vous pouvez :
-    1. **Consulter** tous les artefacts générés
-    2. **Exporter** les résultats (JSON, ZIP)
-    3. **Analyser** les preuves et tests
-    4. **Comparer** Naive vs Governed
+    **Formats d'export** : JSON (structured), JSONL (streaming), ZIP (archive)
+    
+    **Traçabilité** : Run ID + Seed + Build Hash garantissent la reproductibilité.
     """)
     
     st.markdown("---")
