@@ -24,11 +24,15 @@ from app.router import select_os_level, get_os_key
 from app.ui.layout import header, invariant_panel, sidebar_controls
 from app.ui.enhanced import render_progress_stepper
 from app.ui.mode_switcher import render_mode_switcher, render_quick_mode_info
+from app.ui.styles import inject_custom_css
 
 # Import des vues
 from app.views import os0_invariants, os1_observation, os2_simulation, os3_governance, os5_autorun, os6_exploration
 from app.views import os4_reports_extended as os4_reports
 from app.views import landing_page, guided_workflow, domain_analytics
+
+# Inject custom CSS for professional appearance
+inject_custom_css()
 
 # Session state initialization
 if "run_id" not in st.session_state:
