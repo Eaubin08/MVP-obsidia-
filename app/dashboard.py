@@ -12,7 +12,13 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Imports locaux
+# Imports locaux - Compatible Streamlit Cloud
+import sys
+
+# Ajouter le répertoire parent au path si nécessaire
+if str(Path(__file__).parent.parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from app.config import BASE_DIR, BUILD_VERSION, BUILD_HASH
 from app.router import select_os_level, get_os_key
 from app.ui.layout import header, invariant_panel, sidebar_controls

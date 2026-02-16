@@ -1,8 +1,14 @@
 """Configuration globale de l'application Obsidia Unified Interface."""
 from pathlib import Path
+import os
 
-# Chemins
-BASE_DIR = Path(__file__).resolve().parents[1]
+# Chemins - Compatible Streamlit Cloud et local
+if os.path.exists('/mount/src'):
+    # Streamlit Cloud
+    BASE_DIR = Path('/mount/src/mvp-obsidia-')
+else:
+    # Local
+    BASE_DIR = Path(__file__).resolve().parents[1]
 DATA_DIR = BASE_DIR / "data"
 TRACES_DIR = BASE_DIR / "traces"
 SCENARIOS_DIR = BASE_DIR / "scenarios"
