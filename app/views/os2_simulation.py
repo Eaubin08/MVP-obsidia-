@@ -6,13 +6,19 @@ from pathlib import Path
 from src.core_pipeline import run_simulation
 from src.utils import read_artifact
 from src.visualization import plot_simulation_distribution
+from src.state_manager import get_unique_key, mark_simulation_done, is_features_valid
 
 def render(base_dir: Path, config: dict):
     """Affiche l'interface de simulation."""
     st.subheader("OS2 — Simulation / Projection (SIM-LITE)")
     st.caption("⚠️ Runs projection. No execution here.")
     
-    # Vérifier que les features existent
+    # Vérifier que les features existent ET sont valides
+    if not is_features_valid():
+        st.error("🔒 **Étape 2 bloquée** : Calculez d'abord les features en Étape 1 (Exploration)")
+        st.info("👉 Retournez à l'étape 1 pour calculer les features avec la configuration actuelle.")
+        return
+    
     if "features" not in st.session_state or "returns" not in st.session_state:
         st.warning("⚠️ No features found. Please go to OS1 and compute features first.")
         return
@@ -36,9 +42,10 @@ def render(base_dir: Path, config: dict):
             
             st.success("✅ Simulation completed!")
             
-            # Graphique de distribution
+            # Graphique de distribution avec key unique
             fig_dist = plot_simulation_distribution(sim_result)
-            st.plotly_chart(fig_dist, use_container_width=True, key="os2_dist_chart")
+            dist_key = get_unique_key("os2_dist_chart")
+            st.plotly_chart(fig_dist, use_container_width=True, key=dist_key)
             
             # Afficher les résultats
             st.markdown("#### 📊 Simulation Results")
@@ -71,6 +78,9 @@ def render(base_dir: Path, config: dict):
             
             # Sauvegarder dans session state
             st.session_state["simulation"] = sim_result
+            
+            # Marquer comme terminé
+            mark_simulation_done()
     
     # Afficher la simulation existante si disponible
     if "simulation" in st.session_state:

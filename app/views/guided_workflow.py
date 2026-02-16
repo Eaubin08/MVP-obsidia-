@@ -2,9 +2,14 @@
 import streamlit as st
 from pathlib import Path
 from app.views import os1_observation, os2_simulation, os3_governance, os4_reports_extended
+from app.ui.navigation import render_permanent_header, render_breadcrumb, render_enhanced_stepper
+from src.state_manager import init_config_state, get_data_flags
 
 def render(base_dir: Path, config: dict):
     """Affiche le workflow guidé."""
+    
+    # Initialiser state
+    init_config_state()
     
     # Initialiser l'étape si nécessaire
     if "guided_step" not in st.session_state:
@@ -12,12 +17,35 @@ def render(base_dir: Path, config: dict):
     
     current_step = st.session_state["guided_step"]
     
-    # Progress bar
-    progress = (current_step - 1) / 4
-    st.progress(progress, text=f"Étape {current_step}/5")
+    # Header permanent
+    render_permanent_header(mode="guided", step=current_step)
     
-    # Stepper visuel
-    render_guided_stepper(current_step)
+    # Breadcrumb
+    step_names = ["Mode Guidé", "Configuration", "Exploration", "Simulation", "Gouvernance", "Rapport"]
+    render_breadcrumb(step_names[:current_step+1], current_step)
+    
+    # Stepper amélioré
+    steps = [
+        ("⚙️", "Configuration"),
+        ("🔍", "Exploration"),
+        ("🎲", "Simulation"),
+        ("⚖️", "Gouvernance"),
+        ("📊", "Rapport")
+    ]
+    
+    # Déterminer les étapes complétées
+    flags = get_data_flags()
+    completed = []
+    if current_step > 1:
+        completed.append(0)  # Config toujours complétée après étape 1
+    if flags["features_computed"] and current_step > 2:
+        completed.append(1)  # Exploration complétée
+    if flags["simulation_done"] and current_step > 3:
+        completed.append(2)  # Simulation complétée
+    if flags["governance_tested"] and current_step > 4:
+        completed.append(3)  # Gouvernance complétée
+    
+    render_enhanced_stepper(steps, current_step - 1, completed)
     
     # Contenu selon l'étape
     if current_step == 1:

@@ -10,6 +10,7 @@ from src.visualization import plot_market_with_decision, plot_features_radar
 from src.explainer import explain_features_realtime
 from app.ui.enhanced import render_section_header, render_info_card, show_toast
 from src.domains_data import generate_domain_specific_data, get_domain_description, get_domain_recommended_tau
+from src.state_manager import get_config, get_unique_key, mark_features_computed, is_features_valid
 
 def render(base_dir: Path, config: dict):
     """Affiche l'interface d'observation."""
@@ -36,20 +37,24 @@ def render(base_dir: Path, config: dict):
     # Charger les données de marché
     data_path = base_dir / "data" / "trading" / "BTC_1h.csv"
     
-    # Essayer de charger les données du fichier, sinon générer
-    if data_path.exists() and config["domain"] == "Trading (ERC-8004)":
-        df = pd.read_csv(data_path)
-    else:
-        # Générer des données synthétiques pour le domaine
-        st.info("📦 Génération de données synthétiques pour ce domaine...")
-        df = generate_domain_specific_data(config["domain"], config["seed"])
+    # Utiliser @st.cache_data pour éviter la regénération inutile
+    @st.cache_data(show_spinner=False)
+    def load_market_data(domain: str, seed: int):
+        if data_path.exists() and domain == "Trading (ERC-8004)":
+            return pd.read_csv(data_path)
+        else:
+            return generate_domain_specific_data(domain, seed)
+    
+    # Charger avec cache basé sur seed+domain
+    df = load_market_data(config["domain"], config["seed"])
     
     st.markdown("#### 📊 Market Data Overview")
     
-    # Graphique de prix
+    # Graphique de prix avec key unique
     features_for_viz = st.session_state.get("features")
     fig_market = plot_market_with_decision(df.tail(100), features_for_viz or {})
-    st.plotly_chart(fig_market, use_container_width=True, key="os1_market_chart")
+    chart_key = get_unique_key("os1_market_chart")
+    st.plotly_chart(fig_market, use_container_width=True, key=chart_key)
     
     # Table de données
     with st.expander("📊 View Raw Data"):
@@ -92,6 +97,9 @@ def render(base_dir: Path, config: dict):
                 # Sauvegarder dans session state
                 st.session_state["features"] = features
                 st.session_state["returns"] = returns
+                
+                # Marquer comme calculé
+                mark_features_computed()
     
     # Afficher les features existantes si disponibles
     if "features" in st.session_state:
@@ -101,9 +109,10 @@ def render(base_dir: Path, config: dict):
         col1, col2 = st.columns([1, 1])
         
         with col1:
-            # Radar chart
+            # Radar chart avec key unique
             fig_radar = plot_features_radar(st.session_state["features"])
-            st.plotly_chart(fig_radar, use_container_width=True, key="os1_radar_chart")
+            radar_key = get_unique_key("os1_radar_chart")
+            st.plotly_chart(fig_radar, use_container_width=True, key=radar_key)
         
         with col2:
             # Explication algèbre humaine temps réel

@@ -7,6 +7,7 @@ from src.core_pipeline import evaluate_gates, emit_erc8004_intent
 from src.score.human_algebra import gates_explainer
 from src.utils import zip_last_run
 from src.visualization import plot_gates_timeline
+from src.state_manager import get_unique_key, mark_governance_tested, is_simulation_valid
 
 def render(base_dir: Path, config: dict):
     """Affiche l'interface de gouvernance."""
@@ -14,6 +15,11 @@ def render(base_dir: Path, config: dict):
     st.caption("⚠️ Only here an intent can be emitted (paper).")
     
     # Vérifier les prérequis
+    if not is_simulation_valid():
+        st.error("🔒 **Étape 3 bloquée** : Effectuez d'abord la simulation en Étape 2")
+        st.info("👉 Retournez à l'étape 2 pour exécuter la simulation Monte Carlo avec la configuration actuelle.")
+        return
+    
     if "features" not in st.session_state or "simulation" not in st.session_state:
         st.warning("⚠️ Missing artifacts. Please run OS1 then OS2 first.")
         return
@@ -91,15 +97,19 @@ def render(base_dir: Path, config: dict):
             
             st.session_state["gates_result"] = gates_result
             
+            # Marquer comme testé
+            mark_governance_tested()
+            
             st.success("✅ Gates evaluated!")
     
     # Afficher les résultats des gates
     if "gates_result" in st.session_state:
         gates = st.session_state["gates_result"]
         
-        # Timeline visuelle
+        # Timeline visuelle avec key unique
         fig_timeline = plot_gates_timeline(gates)
-        st.plotly_chart(fig_timeline, use_container_width=True, key="os3_timeline_chart")
+        timeline_key = get_unique_key("os3_timeline_chart")
+        st.plotly_chart(fig_timeline, use_container_width=True, key=timeline_key)
         
         st.markdown("##### Gates Status")
         

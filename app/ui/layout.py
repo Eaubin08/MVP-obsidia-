@@ -12,16 +12,41 @@ def header(run_id: str, domain: str, mode: str, build_hash: str):
 
 def invariant_panel():
     """Affiche le panneau des invariants dans la sidebar."""
+    from app.ui.documentation import render_detail_level_selector
+    
+    # Sélecteur de niveau de détail
+    detail_level = render_detail_level_selector()
+    
     with st.sidebar.expander("⚖️ Lois Fondamentales (Invariants)", expanded=False):
-        st.markdown("**🔒 Lois du Système:**")
-        st.markdown("- Priorité: **BLOCK > HOLD > ALLOW**")
-        st.markdown("- X-108: **HOLD→ACT** pour intents irréversibles")
-        st.markdown("- Séparation: **Exploration ≠ Action**")
-        st.markdown("- Non-anticipation: **ACT INTERDIT avant τ**")
+        if detail_level == "Simplifié":
+            st.markdown("**🔒 Lois du Système:**")
+            st.markdown("- Priorité: **BLOCK > HOLD > ALLOW**")
+            st.markdown("- X-108: **HOLD→ACT** pour intents irréversibles")
+            st.markdown("- Séparation: **Exploration ≠ Action**")
+            st.markdown("- Non-anticipation: **ACT INTERDIT avant τ**")
+        elif detail_level == "Intermédiaire":
+            st.markdown("**🔒 Lois du Système:**")
+            st.markdown("- **Priorité**: BLOCK > HOLD > ALLOW (composition stricte)")
+            st.markdown("- **X-108**: Délai τ obligatoire pour actions irréversibles")
+            st.markdown("- **Séparation**: Explorer ≠ Executor ≠ Roi (aucun bypass)")
+            st.markdown("- **Non-anticipation**: ACT INTERDIT avant τ secondes")
+            st.markdown("- **Irréversibilité**: Si irreversible=true ⇒ X-108 s'applique")
+        else:  # Expert
+            st.markdown("**🔒 Core Laws (Version Expert):**")
+            st.markdown("""
+            1. **X-108 Temporal Lock**: ∀ intent irréversible, ∃ τ > 0 tel que ACT(t) ⇒ t ≥ t0 + τ
+            2. **Gate Priority**: compose(gates) = max(BLOCK, HOLD, ALLOW) avec BLOCK > HOLD > ALLOW
+            3. **Irreversibility Flag**: irreversible=true ⇒ X-108 MUST apply
+            4. **Role Separation**: Explorer ≠ Executor ≠ Roi (no bypass, full traceability)
+            5. **Non-Anticipation**: ACT MUST NOT occur before τ seconds elapsed
+            """)
         
         st.markdown("---")
         st.markdown("**💡 Rappel:**")
         st.caption("Ces lois sont **non-négociables** et s'appliquent à tous les niveaux OS.")
+        
+        if detail_level != "Simplifié":
+            st.caption("📚 Pour plus de détails, consultez la documentation complète dans OS0 ou OS4.")
 
 def sidebar_controls():
     """Affiche les contrôles globaux dans la sidebar."""
