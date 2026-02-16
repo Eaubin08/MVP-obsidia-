@@ -29,6 +29,10 @@ DOMAINS = [
     "Trading (ERC-8004)",
     "Bank-Robo",
     "Blockchain / Intents",
+    "Medical-AI (Santé)",
+    "Legal-Contracts (Juridique)",
+    "Auto-Drive (Véhicules)",
+    "Factory-Control (Industriel)",
     "Unified"
 ]
 
@@ -38,15 +42,15 @@ MODES = [
     "Free (Non-deterministic)"
 ]
 
-# Niveaux OS
+# Niveaux OS (Pipeline)
 OS_LEVELS = [
-    "OS0 — Invariants",
-    "OS1 — Observation",
-    "OS2 — Simulation",
-    "OS3 — Governance",
-    "OS4 — Reports",
-    "OS5 — Auto-Run",
-    "OS6 — Exploration"
+    "OS0 — Invariants (Lois)",
+    "OS1 — Exploration (Découverte)",
+    "OS2 — Simulation (Projection)",
+    "OS3 — Gouvernance (Décision)",
+    "OS4 — Rapports (Audit)",
+    "OS5 — Démo Auto (Scénarios)",
+    "OS6 — Tests Stress (Avancé)"
 ]
 
 # Build info

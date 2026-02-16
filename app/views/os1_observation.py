@@ -8,20 +8,41 @@ from src.core_pipeline import run_observation
 from src.score.human_algebra import features_summary
 from src.visualization import plot_market_with_decision, plot_features_radar
 from src.explainer import explain_features_realtime
+from app.ui.enhanced import render_section_header, render_info_card, show_toast
+from src.domains_data import generate_domain_specific_data, get_domain_description, get_domain_recommended_tau
 
 def render(base_dir: Path, config: dict):
     """Affiche l'interface d'observation."""
-    st.subheader("OS1 — Observation / Exploration")
-    st.caption("⚠️ Compute features only. No execution here.")
+    render_section_header(
+        "OS1 — Exploration (Découverte)",
+        "🔍 Visualisez les données du marché et calculez les features. Aucune action réelle n'est exécutée ici.",
+        "🔍"
+    )
+    
+    render_info_card(
+        "Mode Exploration Uniquement",
+        "Cette étape permet de découvrir et analyser les données sans risque. Calculez les features pour débloquer OS2 (Simulation).",
+        "⚠️",
+        "#FF9800"
+    )
+    
+    # Afficher les informations du domaine
+    domain_desc = get_domain_description(config["domain"])
+    recommended_tau = get_domain_recommended_tau(config["domain"])
+    
+    st.info(f"🎯 **Domaine sélectionné** : {domain_desc}")
+    st.caption(f"🔒 τ recommandé pour ce domaine : {recommended_tau}s")
     
     # Charger les données de marché
     data_path = base_dir / "data" / "trading" / "BTC_1h.csv"
     
-    if not data_path.exists():
-        st.error(f"❌ Data file not found: {data_path}")
-        return
-    
-    df = pd.read_csv(data_path)
+    # Essayer de charger les données du fichier, sinon générer
+    if data_path.exists() and config["domain"] == "Trading (ERC-8004)":
+        df = pd.read_csv(data_path)
+    else:
+        # Générer des données synthétiques pour le domaine
+        st.info("📦 Génération de données synthétiques pour ce domaine...")
+        df = generate_domain_specific_data(config["domain"], config["seed"])
     
     st.markdown("#### 📊 Market Data Overview")
     
@@ -56,6 +77,7 @@ def render(base_dir: Path, config: dict):
             with st.spinner("Computing features..."):
                 features = run_observation(returns, base_dir)
                 
+                show_toast("Features calculées avec succès ! OS2 débloqué.", "✅")
                 st.success("✅ Features computed!")
                 
                 # Afficher les features
