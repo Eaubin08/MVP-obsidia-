@@ -6,6 +6,7 @@ from pathlib import Path
 from src.core_pipeline import evaluate_gates, emit_erc8004_intent
 from src.score.human_algebra import gates_explainer
 from src.utils import zip_last_run
+from src.visualization import plot_gates_timeline
 
 def render(base_dir: Path, config: dict):
     """Affiche l'interface de gouvernance."""
@@ -95,6 +96,10 @@ def render(base_dir: Path, config: dict):
     # Afficher les résultats des gates
     if "gates_result" in st.session_state:
         gates = st.session_state["gates_result"]
+        
+        # Timeline visuelle
+        fig_timeline = plot_gates_timeline(gates)
+        st.plotly_chart(fig_timeline, use_container_width=True)
         
         st.markdown("##### Gates Status")
         

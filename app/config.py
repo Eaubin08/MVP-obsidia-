@@ -44,7 +44,9 @@ OS_LEVELS = [
     "OS1 — Observation",
     "OS2 — Simulation",
     "OS3 — Governance",
-    "OS4 — Reports"
+    "OS4 — Reports",
+    "OS5 — Auto-Run",
+    "OS6 — Exploration"
 ]
 
 # Build info

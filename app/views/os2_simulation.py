@@ -5,6 +5,7 @@ from pathlib import Path
 
 from src.core_pipeline import run_simulation
 from src.utils import read_artifact
+from src.visualization import plot_simulation_distribution
 
 def render(base_dir: Path, config: dict):
     """Affiche l'interface de simulation."""
@@ -34,6 +35,10 @@ def render(base_dir: Path, config: dict):
             sim_result = run_simulation(returns, base_dir, n_sims=n_sims, horizon=horizon)
             
             st.success("✅ Simulation completed!")
+            
+            # Graphique de distribution
+            fig_dist = plot_simulation_distribution(sim_result)
+            st.plotly_chart(fig_dist, use_container_width=True)
             
             # Afficher les résultats
             st.markdown("#### 📊 Simulation Results")
