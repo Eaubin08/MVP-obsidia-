@@ -1,4 +1,4 @@
-"""Main dashboard for Obsidia Unified Interface."""
+"""Main dashboard for Obsidia - Professional Application."""
 import streamlit as st
 import hashlib
 import time
@@ -6,30 +6,26 @@ from pathlib import Path
 
 # Configuration de la page
 st.set_page_config(
-    page_title="Obsidia Unified Interface",
-    page_icon="⚖️",
+    page_title="Obsidia",
+    page_icon="🏛️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Imports locaux - Compatible Streamlit Cloud
+# Imports locaux
 import sys
-
-# Ajouter le répertoire parent au path si nécessaire
 if str(Path(__file__).parent.parent) not in sys.path:
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app.config import BASE_DIR, BUILD_VERSION, BUILD_HASH
 from app.ui.styles import inject_custom_css
-from app.ui.header import render_header_guided, render_header_expert
-from app.ui.expert_navigation import render_expert_sidebar
 
 # Import des vues
 from app.views import os0_invariants, os1_observation, os2_simulation, os3_governance, os5_autorun, os6_exploration
 from app.views import os4_reports_extended as os4_reports
-from app.views import landing_page, guided_workflow, domain_analytics
+from app.views import dashboard_home, domain_analytics
 
-# Inject custom CSS for professional appearance
+# Inject custom CSS
 inject_custom_css()
 
 # Session state initialization
@@ -39,14 +35,8 @@ if "run_id" not in st.session_state:
 if "build_hash" not in st.session_state:
     st.session_state.build_hash = BUILD_HASH
 
-if "app_mode" not in st.session_state:
-    st.session_state["app_mode"] = None  # None = landing, "guided" = mode guidé, "expert" = mode expert
-
-if "os_level" not in st.session_state:
-    st.session_state["os_level"] = "OS0"
-
-if "guided_step" not in st.session_state:
-    st.session_state["guided_step"] = 1
+if "current_page" not in st.session_state:
+    st.session_state["current_page"] = "Dashboard"
 
 if "seed" not in st.session_state:
     st.session_state["seed"] = 42
@@ -57,10 +47,8 @@ if "tau" not in st.session_state:
 if "domain" not in st.session_state:
     st.session_state["domain"] = "trading"
 
-# Vérifier si on est sur la landing page
-if st.session_state["app_mode"] is None:
-    landing_page.render()
-    st.stop()
+if "os_level" not in st.session_state:
+    st.session_state["os_level"] = "OS0"
 
 # Configuration object
 config = {
@@ -73,101 +61,136 @@ config = {
 }
 
 # ========================================
-# MODE GUIDÉ
+# SIDEBAR FIXE (Navigation + Config)
 # ========================================
-if st.session_state["app_mode"] == "guided":
-    # Header with progress bar (no sidebar)
-    render_header_guided()
+with st.sidebar:
+    st.title("🏛️ OBSIDIA")
+    st.caption("Gouvernance Transparente IA")
     
-    # Render guided workflow
-    guided_workflow.render(BASE_DIR, config)
-    st.stop()
+    st.markdown("---")
+    
+    # NAVIGATION PRINCIPALE
+    page = st.radio(
+        "Navigation",
+        ["🏠 Dashboard", "🔍 Analyse", "📊 Simulation", 
+         "⚖️ Gouvernance", "📄 Rapports", "🧪 Stress Tests", "📊 Domaines"],
+        label_visibility="collapsed",
+        key="main_nav"
+    )
+    
+    # Update current page
+    st.session_state["current_page"] = page.split(" ", 1)[1]
+    
+    st.markdown("---")
+    
+    # CONFIG RAPIDE
+    st.markdown("### ⚙️ Configuration")
+    
+    domain_options = ["Trading (ERC-8004)", "Medical-AI", "Legal-Contracts", "Auto-Drive", "Factory-Control"]
+    domain_selected = st.selectbox(
+        "Domaine",
+        domain_options,
+        help="Sélectionnez le domaine d'application"
+    )
+    st.session_state["domain"] = domain_selected.split(" ")[0].lower()
+    
+    st.session_state["seed"] = st.number_input(
+        "Seed",
+        min_value=0,
+        max_value=9999,
+        value=st.session_state.get("seed", 42),
+        help="Graine aléatoire pour reproductibilité"
+    )
+    
+    st.session_state["tau"] = st.slider(
+        "Délai τ (s)",
+        min_value=0.0,
+        max_value=30.0,
+        value=st.session_state.get("tau", 10.0),
+        step=0.5,
+        help="Délai de sécurité X-108"
+    )
+    
+    st.markdown("---")
+    
+    # NIVEAU OS (Mode Expert)
+    with st.expander("🔬 Mode Expert (OS Levels)"):
+        os_level = st.radio(
+            "OS Level",
+            ["OS0 — Invariants", "OS1 — Exploration", "OS2 — Simulation", 
+             "OS3 — Gouvernance", "OS4 — Rapports", "OS5 — Démo Auto", "OS6 — Stress"],
+            label_visibility="collapsed"
+        )
+        st.session_state["os_level"] = os_level.split(" ")[0]
+        
+        if st.button("➡️ Aller au niveau OS", use_container_width=True):
+            st.session_state["current_page"] = "Expert Mode"
+            st.rerun()
 
 # ========================================
-# MODE EXPERT
+# ZONE PRINCIPALE (Tabs + Contenu)
 # ========================================
-if st.session_state["app_mode"] == "expert":
-    # Header with breadcrumb
-    render_header_expert()
+
+current_page = st.session_state.get("current_page", "Dashboard")
+
+if current_page == "Dashboard":
+    dashboard_home.render()
+
+elif current_page == "Analyse":
+    st.markdown("### 🔍 Analyse (OS1 — Exploration)")
+    st.markdown("Explorez les données et extrayez les features sans prendre de décision.")
+    st.markdown("---")
+    os1_observation.render(BASE_DIR, config)
+
+elif current_page == "Simulation":
+    st.markdown("### 📊 Simulation (OS2 — Projection)")
+    st.markdown("Projetez les scénarios futurs possibles via simulation Monte Carlo.")
+    st.markdown("---")
+    os2_simulation.render(BASE_DIR, config)
+
+elif current_page == "Gouvernance":
+    st.markdown("### ⚖️ Gouvernance (OS3 — Décision)")
+    st.markdown("Appliquez les 3 gates de validation et la politique ROI pour émettre un intent.")
+    st.markdown("---")
+    os3_governance.render(BASE_DIR, config)
+
+elif current_page == "Rapports":
+    st.markdown("### 📄 Rapports (OS4 — Audit)")
+    st.markdown("Consultez tous les artefacts générés et exportez les résultats.")
+    st.markdown("---")
+    os4_reports.render(BASE_DIR, config)
+
+elif current_page == "Stress Tests":
+    st.markdown("### 🧪 Stress Tests (OS6 — Validation)")
+    st.markdown("Générez des scénarios aléatoires pour tester la robustesse du système.")
+    st.markdown("---")
+    os6_exploration.render(BASE_DIR, config)
+
+elif current_page == "Domaines":
+    domain_analytics.render()
+
+elif current_page == "Expert Mode":
+    # Mode Expert : Afficher le niveau OS sélectionné
+    os_level = st.session_state.get("os_level", "OS0")
     
-    # Sidebar navigation
-    selected_os = render_expert_sidebar()
-    
-    # Check if Domain Analytics is requested
-    if st.session_state.get("show_domain_analytics", False):
-        domain_analytics.render()
-        if st.button("⬅️ Retour", key="back_from_analytics"):
-            st.session_state["show_domain_analytics"] = False
-            st.rerun()
-        st.stop()
-    
-    # Render selected OS level
-    if selected_os == "OS0":
-        st.markdown("""
-        ### 📖 À PROPOS DE CE NIVEAU
-        
-        **OS0** définit les **lois fondamentales** qui régissent tout le système. Ces invariants garantissent la sécurité et la traçabilité des décisions.
-        
-        **Rôle** : Comprendre les règles du jeu (avant d'explorer ou d'agir).
-        """)
+    if os_level == "OS0":
+        st.markdown("### ⚖️ OS0 — Invariants (Lois Fondamentales)")
         os0_invariants.render(BASE_DIR, config)
-    
-    elif selected_os == "OS1":
-        st.markdown("""
-        ### 📖 À PROPOS DE CE NIVEAU
-        
-        **OS1** permet d'explorer les données sans prendre de décision. Vous êtes dans le rôle **Explorer** (séparation Explorer ≠ Executor ≠ Roi).
-        
-        **Rôle** : Analyser et extraire les features (aucune action irréversible possible).
-        """)
+    elif os_level == "OS1":
+        st.markdown("### 🔍 OS1 — Exploration")
         os1_observation.render(BASE_DIR, config)
-    
-    elif selected_os == "OS2":
-        st.markdown("""
-        ### 📖 À PROPOS DE CE NIVEAU
-        
-        **OS2** projette les scénarios futurs possibles via **simulation Monte Carlo**. Aucune décision n'est prise, seulement des projections.
-        
-        **Rôle** : Simuler (évaluer les risques avant de décider).
-        """)
+    elif os_level == "OS2":
+        st.markdown("### 📊 OS2 — Simulation")
         os2_simulation.render(BASE_DIR, config)
-    
-    elif selected_os == "OS3":
-        st.markdown("""
-        ### 📖 À PROPOS DE CE NIVEAU
-        
-        **OS3** applique les **3 gates de validation** (Integrity, X-108, Risk) et la politique **ROI** pour émettre un intent papier.
-        
-        **Rôle** : Gouverner (décider selon les lois fondamentales).
-        """)
+    elif os_level == "OS3":
+        st.markdown("### ⚖️ OS3 — Gouvernance")
         os3_governance.render(BASE_DIR, config)
-    
-    elif selected_os == "OS4":
-        st.markdown("""
-        ### 📖 À PROPOS DE CE NIVEAU
-        
-        **OS4** permet de consulter tous les artefacts générés, d'exporter les résultats et d'analyser les preuves.
-        
-        **Rôle** : Auditer (traçabilité et reproductibilité).
-        """)
+    elif os_level == "OS4":
+        st.markdown("### 📄 OS4 — Rapports")
         os4_reports.render(BASE_DIR, config)
-    
-    elif selected_os == "OS5":
-        st.markdown("""
-        ### 📖 À PROPOS DE CE NIVEAU
-        
-        **OS5** exécute automatiquement des scénarios prédéfinis pour démonstration et validation.
-        
-        **Rôle** : Démontrer (prouver le fonctionnement du système).
-        """)
+    elif os_level == "OS5":
+        st.markdown("### 🎬 OS5 — Démo Auto")
         os5_autorun.render(BASE_DIR, config)
-    
-    elif selected_os == "OS6":
-        st.markdown("""
-        ### 📖 À PROPOS DE CE NIVEAU
-        
-        **OS6** génère des scénarios aléatoires pour tester la robustesse du système dans des conditions extrêmes.
-        
-        **Rôle** : Stresser (valider la résilience).
-        """)
+    elif os_level == "OS6":
+        st.markdown("### 🧪 OS6 — Stress Tests")
         os6_exploration.render(BASE_DIR, config)
