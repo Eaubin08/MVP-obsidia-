@@ -29,6 +29,9 @@ from app.views import dashboard_home, domain_analytics
 inject_custom_css()
 
 # Session state initialization
+if "app_mode" not in st.session_state:
+    st.session_state["app_mode"] = "Expert"  # Default to Expert mode
+
 if "run_id" not in st.session_state:
     st.session_state.run_id = hashlib.sha256(str(time.time()).encode()).hexdigest()[:12]
 
@@ -61,7 +64,34 @@ config = {
 }
 
 # ========================================
-# SIDEBAR FIXE (Navigation + Config)
+# MODE TOGGLE (En haut de la page principale)
+# ========================================
+
+# Toggle Mode Guidé / Expert
+col_toggle1, col_toggle2, col_toggle3 = st.columns([1, 2, 1])
+with col_toggle2:
+    mode = st.radio(
+        "",
+        ["🎓 Mode Guidé", "⚡ Mode Expert"],
+        horizontal=True,
+        index=0 if st.session_state.get("app_mode", "Expert") == "Guidé" else 1,
+        key="mode_toggle"
+    )
+    st.session_state["app_mode"] = "Guidé" if "Guidé" in mode else "Expert"
+
+st.markdown("---")
+
+# ========================================
+# MODE GUIDÉ : Workflow pédagogique
+# ========================================
+
+if st.session_state["app_mode"] == "Guidé":
+    from app.views import guided_workflow
+    guided_workflow.render(BASE_DIR, config)
+    st.stop()  # Ne pas afficher le reste (sidebar expert)
+
+# ========================================
+# SIDEBAR FIXE (Navigation + Config) - MODE EXPERT
 # ========================================
 with st.sidebar:
     st.title("🏛️ OBSIDIA")
