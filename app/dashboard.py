@@ -23,6 +23,7 @@ from app.config import BASE_DIR, BUILD_VERSION, BUILD_HASH
 from app.router import select_os_level, get_os_key
 from app.ui.layout import header, invariant_panel, sidebar_controls
 from app.ui.enhanced import render_progress_stepper
+from app.ui.mode_switcher import render_mode_switcher, render_quick_mode_info
 
 # Import des vues
 from app.views import os0_invariants, os1_observation, os2_simulation, os3_governance, os5_autorun, os6_exploration
@@ -43,6 +44,9 @@ if "app_mode" not in st.session_state:
 if st.session_state["app_mode"] is None:
     landing_page.render()
     st.stop()
+
+# Mode switcher (always visible)
+render_mode_switcher()
 
 # Sidebar controls
 config = sidebar_controls()

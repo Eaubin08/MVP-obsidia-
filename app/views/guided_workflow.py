@@ -89,17 +89,13 @@ def render_step1_config(config: dict):
     st.markdown("## ⚙️ Étape 1 : Configuration")
     
     st.markdown("""
-    ### Bienvenue dans le mode guidé !
+    **Objectif** : Configurer les paramètres de base pour l'analyse de gouvernance.
     
-    Dans cette première étape, vous allez configurer les paramètres de base pour votre analyse.
-    
-    #### 💡 Ce que vous allez faire :
-    1. Choisir un **domaine d'application** (Trading, Santé, etc.)
-    2. Définir le **délai de sécurité τ** (X-108 Temporal Lock)
-    3. Sélectionner une **graine aléatoire** pour la reproductibilité
+    **Paramètres clés** :
+    - **Domaine d'application** : Trading, Santé, Juridique, Véhicules, Industrie
+    - **Délai de sécurité τ** : Temps d'attente obligatoire avant action irréversible (X-108)
+    - **Graine aléatoire (Seed)** : Garantit la reproductibilité des résultats
     """)
-    
-    st.info("ℹ️ **Astuce** : Pour votre première utilisation, nous recommandons le domaine **Trading (ERC-8004)** avec les paramètres par défaut.")
     
     # Afficher la configuration actuelle
     st.markdown("### 📋 Configuration Actuelle")
@@ -119,13 +115,8 @@ def render_step1_config(config: dict):
     # Marquer config comme validée
     mark_config_validated()
     
-    st.markdown("""
-    ### ✅ Configuration validée !
-    
-    Vous pouvez maintenant passer à l'étape suivante : **Exploration des données**.
-    
-    ⚠️ **Note** : Vous pouvez modifier ces paramètres à tout moment dans la console latérale (à gauche).
-    """)
+    st.success("✅ **Configuration validée**")
+    st.caption("Les paramètres sont verrouillés pour garantir la cohérence du workflow. Retournez à cette étape pour les modifier.")
     
     col1, col2, col3 = st.columns([1, 2, 1])
     
