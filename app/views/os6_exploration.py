@@ -196,7 +196,7 @@ def render_stress_test(base_dir: Path, config: dict):
                 # Timeline
                 if result.get("gates_result"):
                     fig = plot_gates_timeline(result["gates_result"])
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, use_container_width=True, key=f"os6_stress_{i}")
 
 def execute_scenario(base_dir: Path, config: dict, scenario: dict) -> dict:
     """Exécute un scénario et retourne les résultats."""
@@ -265,7 +265,7 @@ def display_result(result: dict):
     # Timeline
     if result.get("gates_result"):
         fig = plot_gates_timeline(result["gates_result"])
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, key="os6_result_timeline")
     
     # Radar chart
     col1, col2 = st.columns(2)
@@ -273,7 +273,7 @@ def display_result(result: dict):
     with col1:
         from src.visualization import plot_features_radar
         fig_radar = plot_features_radar(result["features"])
-        st.plotly_chart(fig_radar, use_container_width=True)
+        st.plotly_chart(fig_radar, use_container_width=True, key="os6_result_radar")
     
     with col2:
         # Explication

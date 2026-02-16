@@ -151,7 +151,7 @@ def render_comparison(base_dir: Path, config: dict, scenarios: list):
                     # Timeline
                     if result.get("gates_result"):
                         fig = plot_gates_timeline(result["gates_result"])
-                        st.plotly_chart(fig, use_container_width=True)
+                        st.plotly_chart(fig, use_container_width=True, key=f"os5_timeline_{result['scenario_id']}")
 
 def execute_scenario(base_dir: Path, config: dict, scenario: dict) -> dict:
     """Exécute un scénario complet et retourne les résultats."""

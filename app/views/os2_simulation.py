@@ -38,7 +38,7 @@ def render(base_dir: Path, config: dict):
             
             # Graphique de distribution
             fig_dist = plot_simulation_distribution(sim_result)
-            st.plotly_chart(fig_dist, use_container_width=True)
+            st.plotly_chart(fig_dist, use_container_width=True, key="os2_dist_chart")
             
             # Afficher les résultats
             st.markdown("#### 📊 Simulation Results")

@@ -99,7 +99,7 @@ def render(base_dir: Path, config: dict):
         
         # Timeline visuelle
         fig_timeline = plot_gates_timeline(gates)
-        st.plotly_chart(fig_timeline, use_container_width=True)
+        st.plotly_chart(fig_timeline, use_container_width=True, key="os3_timeline_chart")
         
         st.markdown("##### Gates Status")
         

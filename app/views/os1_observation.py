@@ -28,7 +28,7 @@ def render(base_dir: Path, config: dict):
     # Graphique de prix
     features_for_viz = st.session_state.get("features")
     fig_market = plot_market_with_decision(df.tail(100), features_for_viz or {})
-    st.plotly_chart(fig_market, use_container_width=True)
+    st.plotly_chart(fig_market, use_container_width=True, key="os1_market_chart")
     
     # Table de données
     with st.expander("📊 View Raw Data"):
@@ -81,7 +81,7 @@ def render(base_dir: Path, config: dict):
         with col1:
             # Radar chart
             fig_radar = plot_features_radar(st.session_state["features"])
-            st.plotly_chart(fig_radar, use_container_width=True)
+            st.plotly_chart(fig_radar, use_container_width=True, key="os1_radar_chart")
         
         with col2:
             # Explication algèbre humaine temps réel
