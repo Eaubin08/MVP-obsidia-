@@ -178,7 +178,7 @@ def render_stress_test(base_dir: Path, config: dict):
         st.markdown("---")
         st.markdown("### 🔥 Stress Test Results")
         
-        for result in results:
+        for idx, result in enumerate(results):
             with st.expander(f"{result['scenario_id']} - {result['actual_decision']}"):
                 col1, col2 = st.columns(2)
                 
@@ -196,7 +196,7 @@ def render_stress_test(base_dir: Path, config: dict):
                 # Timeline
                 if result.get("gates_result"):
                     fig = plot_gates_timeline(result["gates_result"])
-                    st.plotly_chart(fig, use_container_width=True, key=f"os6_stress_{i}")
+                    st.plotly_chart(fig, use_container_width=True, key=f"os6_stress_{result['scenario_id']}_{idx}")
 
 def execute_scenario(base_dir: Path, config: dict, scenario: dict) -> dict:
     """Exécute un scénario et retourne les résultats."""
