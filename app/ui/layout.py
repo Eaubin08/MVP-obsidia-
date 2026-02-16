@@ -54,37 +54,77 @@ def sidebar_controls():
     
     from app.config import MODES, DOMAINS, DEFAULT_SEED, DEFAULT_TAU, BASE_DIR
     from src.scenarios import load_scenarios
+    from src.console_lock import is_console_locked, render_lock_message, render_change_warning
+    
+    # Vérifier si en mode guidé
+    is_guided = st.session_state.get("app_mode") == "guided"
+    
+    # Warning si config changée
+    if is_guided:
+        render_change_warning()
     
     # Section Configuration
-    with st.sidebar.expander("⚙️ Configuration Générale", expanded=True):
-        mode = st.selectbox("🎭 Mode d'exécution", MODES, index=0, 
-                           help="Proof: Scénarios déterministes pour validation | Free: Exploration libre")
-        domain = st.selectbox("🎯 Domaine d'application", DOMAINS, index=0,
-                             help="Sélectionnez le domaine métier à analyser")
+    config_locked = is_console_locked("config")
+    with st.sidebar.expander("⚙️ Configuration Générale", expanded=not config_locked):
+        if config_locked:
+            render_lock_message("config")
+            # Afficher config actuelle en lecture seule
+            st.caption(f"🎭 Mode: {st.session_state.get('mode', 'Free')}")
+            st.caption(f"🎯 Domaine: {st.session_state.get('domain', 'Trading')}")
+        else:
+            mode = st.selectbox("🎭 Mode d'exécution", MODES, index=0, 
+                               help="Proof: Scénarios déterministes pour validation | Free: Exploration libre")
+            domain = st.selectbox("🎯 Domaine d'application", DOMAINS, index=0,
+                                 help="Sélectionnez le domaine métier à analyser")
     
     # Scenario picker (Proof Mode only)
     selected_scenario = None
-    if mode.startswith("Proof"):
+    scenarios_locked = is_console_locked("scenarios")
+    
+    if not config_locked:  # Si config pas locked, on peut avoir le mode
+        mode_val = mode
+    else:
+        mode_val = st.session_state.get("mode", "Free")
+    
+    if mode_val.startswith("Proof"):
         with st.sidebar.expander("🎯 Scénarios de Test", expanded=False):
-            scenarios = load_scenarios(BASE_DIR, "trading")
-            if scenarios:
-                scenario_names = ["(Aucun)"] + [f"{s['id']}: {s['name']}" for s in scenarios]
-                scenario_choice = st.selectbox("Choisir un scénario", scenario_names, index=0,
-                                              help="Scénarios prédéfinis pour tests de validation")
-                
-                if scenario_choice != "(Aucun)":
-                    scenario_id = scenario_choice.split(":")[0]
-                    selected_scenario = next((s for s in scenarios if s["id"] == scenario_id), None)
+            if scenarios_locked:
+                render_lock_message("scenarios")
+                if "selected_scenario" in st.session_state:
+                    st.caption(f"✅ Scénario: {st.session_state['selected_scenario'].get('name', 'Aucun')}")
+            else:
+                scenarios = load_scenarios(BASE_DIR, "trading")
+                if scenarios:
+                    scenario_names = ["(Aucun)"] + [f"{s['id']}: {s['name']}" for s in scenarios]
+                    scenario_choice = st.selectbox("Choisir un scénario", scenario_names, index=0,
+                                                  help="Scénarios prédéfinis pour tests de validation")
                     
-                    if selected_scenario:
-                        st.info(f"✅ {selected_scenario['description']}")
+                    if scenario_choice != "(Aucun)":
+                        scenario_id = scenario_choice.split(":")[0]
+                        selected_scenario = next((s for s in scenarios if s["id"] == scenario_id), None)
+                        
+                        if selected_scenario:
+                            st.info(f"✅ {selected_scenario['description']}")
     
     # Section Paramètres
-    with st.sidebar.expander("⏱️ Paramètres Temporels & Aléatoires", expanded=True):
-        seed = st.number_input("🎲 Graine aléatoire", min_value=0, value=DEFAULT_SEED, step=1,
-                              help="Pour reproduire exactement les mêmes résultats")
-        tau = st.slider("🔒 Délai de sécurité τ (secondes)", 1.0, 30.0, DEFAULT_TAU, 1.0,
-                       help="Temps d'attente obligatoire avant action irréversible (X-108)")
+    temporal_locked = is_console_locked("temporal")
+    with st.sidebar.expander("⏱️ Paramètres Temporels & Aléatoires", expanded=not temporal_locked):
+        if temporal_locked:
+            render_lock_message("temporal")
+            st.caption(f"🎲 Seed: {st.session_state.get('seed', DEFAULT_SEED)}")
+            st.caption(f"🔒 τ: {st.session_state.get('tau', DEFAULT_TAU)}s")
+            seed = st.session_state.get("seed", DEFAULT_SEED)
+            tau = st.session_state.get("tau", DEFAULT_TAU)
+        else:
+            seed = st.number_input("🎲 Graine aléatoire", min_value=0, value=DEFAULT_SEED, step=1,
+                                  help="Pour reproduire exactement les mêmes résultats")
+            tau = st.slider("🔒 Délai de sécurité τ (secondes)", 1.0, 30.0, DEFAULT_TAU, 1.0,
+                           help="Temps d'attente obligatoire avant action irréversible (X-108)")
+    
+    # Retourner config (locked ou non)
+    if config_locked:
+        mode = st.session_state.get("mode", "Free")
+        domain = st.session_state.get("domain", "Trading")
     
     return {
         "mode": mode,

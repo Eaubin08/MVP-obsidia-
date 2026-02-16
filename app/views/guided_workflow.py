@@ -84,6 +84,8 @@ def render_guided_stepper(current_step: int):
 
 def render_step1_config(config: dict):
     """Étape 1: Configuration."""
+    from src.console_lock import mark_config_validated
+    
     st.markdown("## ⚙️ Étape 1 : Configuration")
     
     st.markdown("""
@@ -113,6 +115,9 @@ def render_step1_config(config: dict):
         st.metric("🎭 Mode", config["mode"])
     
     st.markdown("---")
+    
+    # Marquer config comme validée
+    mark_config_validated()
     
     st.markdown("""
     ### ✅ Configuration validée !

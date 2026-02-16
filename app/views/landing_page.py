@@ -1,4 +1,4 @@
-"""Landing page with Guided vs Expert mode selection."""
+"""Landing page with mode selection."""
 import streamlit as st
 from pathlib import Path
 
@@ -8,22 +8,23 @@ def render():
     # CSS personnalisé
     st.markdown("""
     <style>
-    .landing-container {
+    .landing-hero {
         text-align: center;
-        padding: 40px 20px;
+        padding: 30px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        margin-bottom: 40px;
     }
     .landing-title {
         font-size: 48px;
         font-weight: bold;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 20px;
+        color: white;
+        margin-bottom: 10px;
     }
     .landing-subtitle {
         font-size: 20px;
-        color: #666;
-        margin-bottom: 50px;
+        color: rgba(255,255,255,0.9);
+        margin-bottom: 0;
     }
     .mode-card {
         background: white;
@@ -33,10 +34,12 @@ def render():
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         cursor: pointer;
         height: 100%;
+        border: 2px solid transparent;
     }
     .mode-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+        border-color: #667eea;
     }
     .mode-icon {
         font-size: 64px;
@@ -62,20 +65,34 @@ def render():
         margin: 8px 0;
         color: #555;
     }
+    .quick-info {
+        background: #f8f9fa;
+        border-left: 4px solid #667eea;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 20px 0;
+    }
     </style>
     """, unsafe_allow_html=True)
     
-    # Header
-    st.markdown('<div class="landing-container">', unsafe_allow_html=True)
-    st.markdown('<h1 class="landing-title">🏛️ OBSIDIA UNIFIED INTERFACE</h1>', unsafe_allow_html=True)
-    st.markdown('<p class="landing-subtitle">Système de gouvernance transparent pour IA autonome</p>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    # Hero section
+    st.markdown("""
+    <div class="landing-hero">
+        <h1 class="landing-title">🏛️ OBSIDIA</h1>
+        <p class="landing-subtitle">Gouvernance Transparente pour IA Autonome</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    st.markdown("---")
+    # Quick info (condensée)
+    st.markdown("""
+    <div class="quick-info">
+        <strong>🎯 En bref :</strong> Obsidia garantit que chaque décision d'IA est <strong>traçable</strong>, 
+        <strong>sécurisée</strong> (délai X-108) et <strong>auditable</strong> (exports JSON).
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Choix du mode
-    st.markdown("## 🎯 Choisissez votre parcours")
-    st.markdown("Sélectionnez le mode qui correspond le mieux à votre niveau d'expertise.")
+    # CTA prominents
+    st.markdown("## 🚀 Choisissez votre parcours")
     
     col1, col2 = st.columns(2, gap="large")
     
@@ -85,23 +102,22 @@ def render():
             <div class="mode-icon">🎓</div>
             <div class="mode-title">Mode Guidé</div>
             <div class="mode-description">
-                Parfait pour <strong>découvrir</strong> et <strong>comprendre</strong> 
-                le fonctionnement du système étape par étape.
+                Workflow <strong>pas-à-pas</strong> avec explications détaillées.
+                Parfait pour découvrir le système.
             </div>
             <div class="mode-features">
-                <strong>Inclut :</strong>
+                <strong>✨ Inclut :</strong>
                 <ul>
-                    <li>✅ Workflow pas-à-pas</li>
-                    <li>✅ Explications détaillées</li>
+                    <li>✅ 5 étapes guidées</li>
+                    <li>✅ Validation automatique</li>
                     <li>✅ Scénarios prédéfinis</li>
                     <li>✅ Assistance contextuelle</li>
-                    <li>✅ Validation automatique</li>
                 </ul>
             </div>
         </div>
         """, unsafe_allow_html=True)
         
-        if st.button("🚀 Démarrer en Mode Guidé", type="primary", use_container_width=True):
+        if st.button("🚀 Démarrer en Mode Guidé", type="primary", use_container_width=True, key="btn_guided"):
             st.session_state["app_mode"] = "guided"
             st.session_state["guided_step"] = 1
             st.rerun()
@@ -113,14 +129,13 @@ def render():
             <div class="mode-title">Mode Expert</div>
             <div class="mode-description">
                 Accès <strong>complet</strong> à toutes les fonctionnalités 
-                sans restrictions ni guidage.
+                sans guidage ni restrictions.
             </div>
             <div class="mode-features">
-                <strong>Inclut :</strong>
+                <strong>✨ Inclut :</strong>
                 <ul>
                     <li>✅ Accès direct OS0-OS6</li>
                     <li>✅ Configuration avancée</li>
-                    <li>✅ Scénarios personnalisés</li>
                     <li>✅ Stress testing</li>
                     <li>✅ Exports complets</li>
                 </ul>
@@ -128,43 +143,47 @@ def render():
         </div>
         """, unsafe_allow_html=True)
         
-        if st.button("⚡ Démarrer en Mode Expert", use_container_width=True):
+        if st.button("⚡ Démarrer en Mode Expert", use_container_width=True, key="btn_expert"):
             st.session_state["app_mode"] = "expert"
             st.rerun()
     
     st.markdown("---")
     
-    # Section informative
-    with st.expander("📚 En savoir plus sur Obsidia"):
-        st.markdown("""
-        ### Qu'est-ce qu'Obsidia ?
+    # Section informative (condensée et collapsée par défaut)
+    with st.expander("📚 En savoir plus sur Obsidia", expanded=False):
+        col1, col2 = st.columns(2)
         
-        **Obsidia Unified Interface** est un système de gouvernance pour agents autonomes 
-        basé sur des **lois fondamentales non-négociables** (X-108, Gate Priority, etc.).
+        with col1:
+            st.markdown("""
+            ### 🎯 Objectifs
+            - **Transparence** : Décisions expliquées
+            - **Sécurité** : Verrous temporels (X-108)
+            - **Auditabilité** : Exports JSON/JSONL
+            - **Reproductibilité** : Seed + Run ID
+            
+            ### 🔒 Lois Fondamentales
+            1. **BLOCK > HOLD > ALLOW** (priorité stricte)
+            2. **X-108 Temporal Lock** (délai τ obligatoire)
+            3. **Exploration ≠ Action** (séparation des rôles)
+            4. **Non-Anticipation** (pas d'action avant τ)
+            """)
         
-        #### 🎯 Objectifs
-        - **Transparence** : Chaque décision est expliquée et traçable
-        - **Sécurité** : Verrous temporels et gates de validation
-        - **Auditabilité** : Tous les artefacts sont exportables
-        - **Reproductibilité** : Seed + Run ID pour tests déterministes
-        
-        #### 🏗️ Architecture
-        - **OS0** : Lois fondamentales (invariants)
-        - **OS1** : Exploration des données (sans risque)
-        - **OS2** : Simulation Monte Carlo (projection)
-        - **OS3** : Gouvernance (gates + X-108 + ROI)
-        - **OS4** : Rapports et exports (audit)
-        - **OS5** : Démo automatisée (scénarios)
-        - **OS6** : Tests de stress (avancé)
-        
-        #### 🔒 Principes Clés
-        1. **BLOCK > HOLD > ALLOW** : Priorité stricte des décisions
-        2. **X-108 Temporal Lock** : Délai obligatoire (τ) avant action irréversible
-        3. **Exploration ≠ Action** : Séparation des rôles
-        4. **Non-Anticipation** : Impossible d'agir avant τ
-        """)
+        with col2:
+            st.markdown("""
+            ### 🏗️ Architecture (6 niveaux)
+            - **OS0** : Lois fondamentales
+            - **OS1** : Exploration données
+            - **OS2** : Simulation Monte Carlo
+            - **OS3** : Gouvernance (gates + ROI)
+            - **OS4** : Rapports et exports
+            - **OS5** : Démo automatisée
+            - **OS6** : Tests de stress
+            
+            ### 🌍 Domaines Supportés
+            Trading, Santé, Juridique, Véhicules, Industrie, etc.
+            """)
     
-    with st.expander("🎓 Mode Guidé vs ⚡ Mode Expert : Quelle différence ?"):
+    with st.expander("🎓 Mode Guidé vs ⚡ Mode Expert", expanded=False):
         col1, col2 = st.columns(2)
         
         with col1:
@@ -175,19 +194,12 @@ def render():
             - Nouveaux utilisateurs
             - Démonstrations
             - Formation
-            - Validation de concepts
             
             **Fonctionnement :**
-            - Workflow linéaire OS1→OS2→OS3→OS4
-            - Explications à chaque étape
-            - Validation automatique des prérequis
-            - Scénarios prédéfinis
-            - Assistance contextuelle
-            
-            **Avantages :**
-            - Apprentissage rapide
-            - Pas d'erreurs de navigation
-            - Compréhension profonde
+            - Workflow linéaire (5 étapes)
+            - Validation automatique
+            - Explications détaillées
+            - Console verrouillée progressivement
             """)
         
         with col2:
@@ -198,21 +210,21 @@ def render():
             - Utilisateurs expérimentés
             - Développeurs
             - Auditeurs
-            - Chercheurs
             
             **Fonctionnement :**
-            - Navigation libre entre tous les OS
+            - Navigation libre OS0-OS6
             - Configuration avancée
-            - Création de scénarios custom
-            - Tests de stress
-            - Exports techniques
-            
-            **Avantages :**
-            - Flexibilité maximale
-            - Accès complet
-            - Personnalisation
+            - Stress testing
+            - Aucune restriction
             """)
     
     # Footer
     st.markdown("---")
-    st.caption("Obsidia Unified Interface v1.0.0 • Build: obsi-unified-mvp")
+    st.markdown("""
+    <div style="text-align: center; color: #999; font-size: 14px;">
+        <p>🏛️ <strong>Obsidia Unified Interface</strong> | Build: obsi-unified-mvp | Version: 1.0.0</p>
+        <p>📖 <a href="#" style="color: #667eea;">Documentation</a> | 
+           💬 <a href="#" style="color: #667eea;">Support</a> | 
+           🔗 <a href="https://github.com/Eaubin08/MVP-obsidia-" style="color: #667eea;">GitHub</a></p>
+    </div>
+    """, unsafe_allow_html=True)
