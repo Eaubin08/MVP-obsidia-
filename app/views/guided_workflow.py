@@ -3,6 +3,7 @@ import streamlit as st
 from pathlib import Path
 from app.views import os1_observation, os2_simulation, os3_governance, os4_reports_extended
 from app.ui.navigation import render_permanent_header, render_breadcrumb, render_enhanced_stepper
+from app.ui.console_x108 import render_console_x108
 from src.state_manager import init_config_state, get_data_flags
 
 def render(base_dir: Path, config: dict):
@@ -47,17 +48,24 @@ def render(base_dir: Path, config: dict):
     
     render_enhanced_stepper(steps, current_step - 1, completed)
     
-    # Contenu selon l'étape
-    if current_step == 1:
-        render_step1_config(config)
-    elif current_step == 2:
-        render_step2_exploration(base_dir, config)
-    elif current_step == 3:
-        render_step3_simulation(base_dir, config)
-    elif current_step == 4:
-        render_step4_governance(base_dir, config)
-    elif current_step == 5:
-        render_step5_report(base_dir, config)
+    # Console X-108 dans une colonne latérale
+    col_main, col_console = st.columns([3, 1])
+    
+    with col_console:
+        render_console_x108()
+    
+    with col_main:
+        # Contenu selon l'étape
+        if current_step == 1:
+            render_step1_config(config)
+        elif current_step == 2:
+            render_step2_exploration(base_dir, config)
+        elif current_step == 3:
+            render_step3_simulation(base_dir, config)
+        elif current_step == 4:
+            render_step4_governance(base_dir, config)
+        elif current_step == 5:
+            render_step5_report(base_dir, config)
 
 def render_guided_stepper(current_step: int):
     """Affiche le stepper du mode guidé."""
